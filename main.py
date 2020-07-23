@@ -26,83 +26,123 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
-        self.dt = self.clock.tick()
-        self.time += self.dt
-        count = 0
         for row in self.grows:
             if row.id == 2:
                 pass
-        missedcount = 0    
+        for block in self.holdblocks:
+            if block.freeze == False:
+                block.rect.x -=10
+            if block.rect.right < 0:
+                block.kill()    
+
         for arrow in self.arrows:
-            arrow.rect.x -=3
-            if arrow.rect.x < 0:
-                if arrow.status == 'not hit':
-                    print("missed", " : ", missedcount)
-                    missedcount +=1
-                arrow.kill() 
-        print(self.time)
+            if len(self.arrows) > 0:
+                #print(arrow.rect.x)
+                arrow.rect.x -=10
+                if arrow.rect.right < 0:
+                    #print(arrow.status)
+                    if arrow.status == 'not_hit':
+                        print("missed : ", self.missedcount)
+                        self.missedcount +=1
+                    arrow.kill() 
+       # print(self.time)
         if self.randintcreate == True:
             self.integer = randint(50,400)
             self.randintcreate = False
         if self.time > self.integer:
             self.activate_new_arrow = True
             self.time = 0
-            self.randintcreate = True               
-
+            self.randintcreate = True                 
+        holdboxcol = pg.sprite.spritecollide(self.check_col_box, self.holdblocks, False)
+        if holdboxcol:
+            for hit in holdboxcol:
+                if hit.hold.id == 1 and self.a == True:
+                    hit.color = VIOLET
+                    hit.freeze = True
+                    if hit.hold.rect.right <= hit.rect.centerx or self.a == False:
+                        hit.freeze = False 
+                    if hit.hold.rect.right <= hit.rect.centerx:
+                        hit.color = GREEN
+                        hit.hold.status = 'hit'
+                elif hit.hold.id == 2 and self.s == True:
+                    hit.color = VIOLET
+                    hit.freeze = True
+                    if hit.hold.rect.right <= hit.rect.centerx or self.s == False:
+                        hit.freeze = False
+                    if hit.hold.rect.right <= hit.rect.centerx:
+                        hit.color = GREEN
+                        hit.hold.status = 'hit'
+                elif hit.hold.id == 3 and self.d == True:
+                    hit.color = VIOLET
+                    hit.freeze = True
+                    if hit.hold.rect.right <= hit.rect.centerx or self.d == False:
+                        hit.freeze = False
+                    if hit.hold.rect.right <= hit.rect.centerx:
+                        hit.color = GREEN  
+                        hit.hold.status = 'hit'                      
+                elif hit.hold.id == 4 and self.f == True:
+                    hit.color = VIOLET
+                    hit.freeze = True
+                    if hit.hold.rect.right <= hit.rect.centerx or self.f == False:
+                        hit.freeze = False  
+                    if hit.hold.rect.right <= hit.rect.centerx:
+                        hit.color = GREEN 
+                        hit.hold.status = 'hit'                        
+                else:
+                    hit.freeze = False                             
         hitboxcol = pg.sprite.spritecollide(self.check_col_box, self.arrows, False)   
         if hitboxcol:
             closest = hitboxcol[0]
             for hit in hitboxcol: 
                 if hit.status == 'not_hit': #hit.rect.left <= closest.rect.left and
-                    if hit.id == 1 and self.up == True:
+                    if hit.id == 1 and self.up == True and hit.type == 'arrow':
+                            
                         closest = hit
                         closest.status = 'hit'
                         
-                    elif hit.id == 2 and self.right == True:
+                    elif hit.id == 2 and self.right == True and hit.type == 'arrow':
                         closest = hit
                         closest.status = 'hit'
                         
-                    elif hit.id == 3 and self.left == True:
+                    elif hit.id == 3 and self.left == True and hit.type == 'arrow':
                         closest = hit
                         closest.status = 'hit'
               
-                    elif hit.id == 4 and self.down == True:
+                    elif hit.id == 4 and self.down == True and hit.type == 'arrow':
                         closest = hit
                         closest.status = 'hit'
-       
-                    #print('HIT', ':', hit.id)
-                    #closest = hit
-
-  
 
     def new(self):
         pg.init()
         self.time = 0
         self.integer = 100
+        self.missedcount = 0
         self.randintcreate = True
         self.activate_new_arrow = False
         self.all_sprites = pg.sprite.LayeredUpdates()
         self.grows = pg.sprite.Group()
         self.arrows = pg.sprite.Group()
         self.hitboxes = pg.sprite.Group()
+        self.holdblocks = pg.sprite.Group()
         self.up = False
         self.down = False
         self.right = False
         self.left = False
+        self.a = False
+        self.s = False
+        self.d = False
+        self.f = False
         maximum_row_h = PLAYFIELD_HEIGHT // 4
         maximum_row_h_max =-maximum_row_h
-        colorlist = [RED, YELLOW, GREEN, BLUE]
         x = 0
-        y = 0
         rowid = 1
         for row in self.rows:
             if x >= maximum_row_h_max:
-                Mainboard_Row(self, x, colorlist[y], rowid)
+                Mainboard_Row(self, x, GUITAR_NECK, rowid)
                 x +=maximum_row_h
-                y+=1
                 rowid +=1     
-        self.check_col_box = HitBox(self, 100, maximum_row_h * 4, 150, WHITE) 
-        HitBox(self, self.check_col_box.rect.centerx - 5, maximum_row_h * 4, 10, BLACK) 
+        self.check_col_box = HitBox(self, 100, maximum_row_h * 4, 150, ALPHA) 
+        HitBox(self, self.check_col_box.rect.centerx - 5, maximum_row_h * 4, 10, WHITE) 
 
         g.run()
 
@@ -123,7 +163,15 @@ class Game:
                 if event.key == pg.K_RIGHT:
                     self.right = True
                 if event.key == pg.K_LEFT:
-                    self.left = True 
+                    self.left = True
+                if event.key == pg.K_a:
+                    self.a = True  
+                if event.key == pg.K_s:
+                    self.s = True                   
+                if event.key == pg.K_d:
+                    self.d = True                   
+                if event.key == pg.K_f: 
+                    self.f = True                              # god help me for this
             elif event.type == pg.KEYUP:
                 if event.key == pg.K_UP:
                     self.up = False
@@ -132,7 +180,16 @@ class Game:
                 if event.key == pg.K_RIGHT:
                     self.right = False
                 if event.key == pg.K_LEFT:
-                    self.left = False                   
+                    self.left = False
+                if event.key == pg.K_a:
+                    self.a = False  
+                if event.key == pg.K_s:
+                    self.s = False                  
+                if event.key == pg.K_d:
+                    self.d = False                   
+                if event.key == pg.K_f: 
+                    self.f = False                      
+
     def draw(self):
         self.MAINWINDOW.fill(BCG)
 

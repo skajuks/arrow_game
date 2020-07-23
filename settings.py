@@ -6,7 +6,7 @@ import pygame
 WIDTH = 1600
 HEIGHT = 800
 PLAYFIELD_HEIGHT = 600
-gameTitle = "I hate this game"
+gameTitle = "SPGMD4"
 # FPS
 SPRITES = "sprites.png"
 FPS = 60
@@ -22,6 +22,10 @@ BLUE = (0,0,255)
 VIOLET  = (0,255,255)
 BCG = (213, 207, 195)
 HIT = (140, 0, 255)
+GUITAR_NECK = (61, 65, 92)
+GUITAR_NECK_B = (108, 115, 157)
+alpha = 128
+ALPHA = (255, 255, 255, alpha)
 
 
 PLAYER_GRAVITY = 0.8
