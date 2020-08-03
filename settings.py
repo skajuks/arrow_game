@@ -5,7 +5,7 @@ import pygame
 
 WIDTH = 1600
 HEIGHT = 800
-PLAYFIELD_HEIGHT = 600
+PLAYFIELD_HEIGHT = 440
 gameTitle = "SPGMD4"
 # FPS
 SPRITES = "sprites.png"

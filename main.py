@@ -26,6 +26,7 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+
         for row in self.grows:
             if row.id == 2:
                 pass
@@ -33,18 +34,17 @@ class Game:
             if block.freeze == False:
                 block.rect.x -=10
             if block.rect.right < 0:
-                block.kill()    
-
+                block.kill() 
         for arrow in self.arrows:
             if len(self.arrows) > 0:
-                #print(arrow.rect.x)
                 arrow.rect.x -=10
                 if arrow.rect.right < 0:
-                    #print(arrow.status)
                     if arrow.status == 'not_hit':
                         print("missed : ", self.missedcount)
                         self.missedcount +=1
-                    arrow.kill() 
+                    arrow.kill()
+        
+                  
        # print(self.time)
         if self.randintcreate == True:
             self.integer = randint(50,400)
@@ -64,6 +64,7 @@ class Game:
                     if hit.hold.rect.right <= hit.rect.centerx:
                         hit.color = GREEN
                         hit.hold.status = 'hit'
+                        self.hit_note_counter +=1
                 elif hit.hold.id == 2 and self.s == True:
                     hit.color = VIOLET
                     hit.freeze = True
@@ -72,6 +73,7 @@ class Game:
                     if hit.hold.rect.right <= hit.rect.centerx:
                         hit.color = GREEN
                         hit.hold.status = 'hit'
+                        self.hit_note_counter +=1
                 elif hit.hold.id == 3 and self.d == True:
                     hit.color = VIOLET
                     hit.freeze = True
@@ -79,7 +81,8 @@ class Game:
                         hit.freeze = False
                     if hit.hold.rect.right <= hit.rect.centerx:
                         hit.color = GREEN  
-                        hit.hold.status = 'hit'                      
+                        hit.hold.status = 'hit'  
+                        self.hit_note_counter +=1                    
                 elif hit.hold.id == 4 and self.f == True:
                     hit.color = VIOLET
                     hit.freeze = True
@@ -87,7 +90,8 @@ class Game:
                         hit.freeze = False  
                     if hit.hold.rect.right <= hit.rect.centerx:
                         hit.color = GREEN 
-                        hit.hold.status = 'hit'                        
+                        hit.hold.status = 'hit'  
+                        self.hit_note_counter +=1                      
                 else:
                     hit.freeze = False                             
         hitboxcol = pg.sprite.spritecollide(self.check_col_box, self.arrows, False)   
@@ -99,22 +103,45 @@ class Game:
                             
                         closest = hit
                         closest.status = 'hit'
+                        self.hit_note_counter +=1
                         
                     elif hit.id == 2 and self.right == True and hit.type == 'arrow':
                         closest = hit
                         closest.status = 'hit'
+                        self.hit_note_counter +=1
                         
                     elif hit.id == 3 and self.left == True and hit.type == 'arrow':
                         closest = hit
                         closest.status = 'hit'
+                        self.hit_note_counter +=1
               
                     elif hit.id == 4 and self.down == True and hit.type == 'arrow':
                         closest = hit
                         closest.status = 'hit'
+                        self.hit_note_counter +=1
+        if self.hit_note_counter > self.hit_count_index:
+            if self.INDEX == 10:
+                for b in self.counterblocks:
+                    b[1] = YELLOW
+                self.INDEX = 0 
+                self.counterblocks[self.INDEX][1] = WHITE
+                if self.INDEX_STEPS < 5:
+                    self.INDEX_STEPS +=1
+                    self.INDEX+=1
+            else:                                                  
+                self.counterblocks[self.INDEX][1] = WHITE 
+                self.INDEX+=1   
+            self.hit_count_index +=1
 
     def new(self):
         pg.init()
         self.time = 0
+        self.hit_count_index = 0
+        self.miss_count_index = 0
+        self.INDEX = 0
+        self.INDEX_STEPS = 0
+        self.note_counter = 0
+        self.hit_note_counter = 0
         self.integer = 100
         self.missedcount = 0
         self.randintcreate = True
@@ -123,6 +150,7 @@ class Game:
         self.grows = pg.sprite.Group()
         self.arrows = pg.sprite.Group()
         self.hitboxes = pg.sprite.Group()
+        self.counterblocks = []
         self.holdblocks = pg.sprite.Group()
         self.up = False
         self.down = False
@@ -132,18 +160,28 @@ class Game:
         self.s = False
         self.d = False
         self.f = False
+        self.blocklist = []
         maximum_row_h = PLAYFIELD_HEIGHT // 4
         maximum_row_h_max =-maximum_row_h
         x = 0
         rowid = 1
         for row in self.rows:
             if x >= maximum_row_h_max:
+                print(x)
                 Mainboard_Row(self, x, GUITAR_NECK, rowid)
+                #Mainboard_Row_Border(self, x + maximum_row_h)
+                print(len(self.grows))
                 x +=maximum_row_h
                 rowid +=1     
         self.check_col_box = HitBox(self, 100, maximum_row_h * 4, 150, ALPHA) 
-        HitBox(self, self.check_col_box.rect.centerx - 5, maximum_row_h * 4, 10, WHITE) 
-
+        HitBox(self, self.check_col_box.rect.centerx - 5, maximum_row_h * 4, 10, WHITE)
+        y = 0 
+        for x in range(10):
+            self.counterblocks.append([
+                [y+400, 450], YELLOW
+            ]
+            )
+            y+=30
         g.run()
 
     def events(self):
@@ -151,10 +189,7 @@ class Game:
             if event.type == pg.QUIT:
                 if self.playing:
                     self.playing = False
-                self.running = False
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                for s in self.hitboxes:
-                    s.check_click(event.pos)    
+                self.running = False 
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
                     self.up = True
@@ -194,6 +229,9 @@ class Game:
         self.MAINWINDOW.fill(BCG)
 
         self.all_sprites.draw(self.MAINWINDOW)
+        for block in self.counterblocks:        
+            pg.draw.rect(self.MAINWINDOW, block[1], [int(block[0][0]), int(block[0][1]),25,25])
+        self.draw_text(str(self.INDEX_STEPS), 30, WHITE, 750,450)
         pg.display.flip()
 
     def waitForKey(self):
@@ -210,6 +248,13 @@ class Game:
     def load_data(self):
         self.dir = path.dirname(__file__)
         self.img_dir = path.join(self.dir, "textures")
+
+    def draw_text(self, text, size, color, x, y):
+        font = pg.font.Font(path.join(self.dir, "bit5x3.TTF"), size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        self.MAINWINDOW.blit(text_surface, text_rect)    
         
 g = Game()
 

@@ -11,7 +11,7 @@ class Mainboard_Row(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.id = rowid
-        self.image = pg.Surface((WIDTH, 150))
+        self.image = pg.Surface((WIDTH, 110))
         self.image.fill(c)
         self.rect = self.image.get_rect()
         self.rect.y = pos
@@ -29,17 +29,20 @@ class Mainboard_Row(pg.sprite.Sprite):
                 Arrow(self.game, self.id, self, 'hold', randint(400,1000))
             else:
                 #pass
-                Arrow(self.game, self.id, self, 'arrow', 0)    
+                Arrow(self.game, self.id, self, 'arrow', 0)
+            self.game.note_counter +=1
+            print("notes : ", self.game.note_counter, " hit notes : ", self.game.hit_note_counter)        
             self.timer = 0
             self.enable_timer = True 
         self.timer +=1
 class Mainboard_Row_Border(pg.sprite.Sprite):
-    def __init__(self, game,parent):
+    def __init__(self, game, parent):
         self._layer = P_LAYER
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.parent = parent
+       # self.parent = parent
         self.image = pg.Surface((WIDTH, 5))
         self.image.fill(GUITAR_NECK_B)
         self.rect = self.image.get_rect()
@@ -52,7 +55,6 @@ class HitBox(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game    
         self.image = pg.Surface((h, int(round(y)))).convert_alpha()
-        #self.image.fill(color)
         if color[-1] == 128:
             self.image.fill(color, None, pg.BLEND_RGBA_MULT)
         else:  
@@ -83,7 +85,7 @@ class Arrow(pg.sprite.Sprite):
                     self.image = pg.image.load(path.join(self.game.img_dir, self.imglist[x - 1]))  
                     self.image = pg.transform.scale(self.image, (90, 90))  
                     self.rect = self.image.get_rect()
-                    self.rect.center = self.line.rect.center
+                    self.rect.centery = self.line.rect.centery
                     self.rect.x = WIDTH + 30   
             
         if self.type == 'hold':
@@ -92,7 +94,7 @@ class Arrow(pg.sprite.Sprite):
                     self.image = pg.Surface((self.holdlenght, 20))
                     self.image.fill(BLACK)
                     self.rect = self.image.get_rect()
-                    self.rect.center = self.line.rect.center 
+                    self.rect.centery = self.line.rect.centery
                     self.rect.x = WIDTH + 30
                     HoldBlocksNr(self.game, self, RED)
                            
