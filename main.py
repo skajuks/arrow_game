@@ -121,18 +121,20 @@ class Game:
                         self.hit_note_counter +=1
         if self.hit_note_counter > self.hit_count_index:
             if self.INDEX == 10:
-                for b in self.counterblocks:
-                    b[1] = YELLOW
-                self.INDEX = 0 
-                self.counterblocks[self.INDEX][1] = WHITE
                 if self.INDEX_STEPS < 5:
+                    for b in self.counterblocks:
+                        b[1] = YELLOW
+                    self.INDEX = 0 
+                    self.counterblocks[self.INDEX][1] = WHITE               
                     self.INDEX_STEPS +=1
                     self.INDEX+=1
+                else:
+                    pass    
             else:                                                  
                 self.counterblocks[self.INDEX][1] = WHITE 
                 self.INDEX+=1   
             self.hit_count_index +=1
-
+             
     def new(self):
         pg.init()
         self.time = 0
@@ -178,10 +180,10 @@ class Game:
         y = 0 
         for x in range(10):
             self.counterblocks.append([
-                [y+400, 450], YELLOW
+                [y+1020, 560], BLACK
             ]
             )
-            y+=30
+            y+=25
         g.run()
 
     def events(self):
@@ -224,14 +226,19 @@ class Game:
                     self.d = False                   
                 if event.key == pg.K_f: 
                     self.f = False                      
+    def draw_streak_box(self):
+        main_sizes = [1000,450,600,150]
+        pg.draw.rect(self.MAINWINDOW, BORDER_COL, [0,440,WIDTH,10])
+        pg.draw.rect(self.MAINWINDOW, BLACK, main_sizes)
+        pg.draw.rect(self.MAINWINDOW, DARKGRAY, [main_sizes[0]+5,main_sizes[1]+5,main_sizes[2],main_sizes[3]-10])
 
     def draw(self):
         self.MAINWINDOW.fill(BCG)
-
         self.all_sprites.draw(self.MAINWINDOW)
+        self.draw_streak_box()
         for block in self.counterblocks:        
-            pg.draw.rect(self.MAINWINDOW, block[1], [int(block[0][0]), int(block[0][1]),25,25])
-        self.draw_text(str(self.INDEX_STEPS), 30, WHITE, 750,450)
+            pg.draw.rect(self.MAINWINDOW, block[1], [int(block[0][0]), int(block[0][1]),20,20])
+        self.draw_text("CURRENT STREAK : " + str(self.INDEX_STEPS), 30, WHITE, 1145,500)
         pg.display.flip()
 
     def waitForKey(self):
